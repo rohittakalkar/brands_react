@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* IndiaMART (m.indiamart.com) design system — the app's one and only visual identity.
+     Everything reads these tokens rather than hardcoded hex, so this block is the single
+     place to retune the whole app's look. */
+  --color-canvas: #FFFFFF;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F2F2F2;
+  --color-ink: #222222;
+  --color-ink-dim: #666666;
+  --color-ink-faint: #8A8A8A;
+  --color-line: #E5E5E5;
+  --color-brand: #1D8D80;
+  --color-brand-hover: #176F65;
+  --color-brand-dim: #E1F1EF;
+  --color-brand-ink: #12554E;
+  --color-gold: #F58220;
+  --color-verified: #1FAE4B;
+  --color-verified-dim: #E4F6EA;
+  --color-warning: #FF9800;
+  --color-error: #D93025;
+  --color-link: #1D8D80;
+  --color-disabled: #BDBDBD;
+
+  color-scheme: light;
+}
+
+* { -webkit-tap-highlight-color: transparent; }
+
+html, body, #root { height: 100%; }
+
+body {
+  background: var(--color-canvas); /* pure white */
+  color: var(--color-ink);
+  font-family: var(--font-sans, Inter, Roboto, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif);
+  font-variant-numeric: tabular-nums;
+  overscroll-behavior-y: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--color-brand-dim); color: var(--color-brand-ink); }
+
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.safe-top { padding-top: env(safe-area-inset-top, 0px); }
+
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+.snap-x-mandatory { scroll-snap-type: x mandatory; }
+.snap-center { scroll-snap-align: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-bounce, .animate-pulse, .animate-spin { animation: none !important; }
+  * { scroll-behavior: auto !important; }
+}

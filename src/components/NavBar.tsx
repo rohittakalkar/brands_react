@@ -1,0 +1,74 @@
+"use client";
+
+import { Link, useNavigate } from "react-router-dom";
+import { Search } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useSearchScope, type SearchSuggestion } from "./SearchScope";
+
+export default function NavBar({ defaultSuggestions = [] }: { defaultSuggestions?: SearchSuggestion[] }) {
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+  const [focused, setFocused] = useState(false);
+  const { label, suggestions: scopedSuggestions } = useSearchScope();
+
+  // Scoped to whatever page is currently mounted (e.g. "Xiaomi Mobile Phones") via SearchScope;
+  // most pages never set a scope, so autosuggest falls back to a site-wide default list rather
+  // than silently having nothing to suggest.
+  const suggestions = scopedSuggestions.length > 0 ? scopedSuggestions : defaultSuggestions;
+  const placeholder = label ? `Search in ${label}` : "Search brands, products…";
+
+  const matches = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return suggestions.filter((s) => s.name.toLowerCase().includes(q)).slice(0, 6);
+  }, [query, suggestions]);
+
+  const go = (q: string) => {
+    if (q.trim()) navigate(`/search?q=${encodeURIComponent(q)}`);
+  };
+
+  return (
+    <header className="sticky top-0 z-30 flex items-center gap-2.5 border-b border-[var(--color-line)] bg-[var(--color-surface)]/95 backdrop-blur px-3 py-2.5 safe-top">
+      <img
+        src="https://seller.imimg.com/blalert_images/bl_mail_logo-min.png"
+        alt="IndiaMART"
+        className="h-6 w-auto shrink-0"
+        referrerPolicy="no-referrer"
+      />
+      <div className="relative flex-1">
+        <form
+          onSubmit={(e) => { e.preventDefault(); go(query); }}
+          className="flex items-center gap-2 rounded-full bg-[var(--color-surface-2)] px-3 py-2"
+        >
+          <Search className="size-4 shrink-0 text-[var(--color-ink-faint)]" aria-hidden="true" />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setTimeout(() => setFocused(false), 150)}
+            placeholder={placeholder}
+            aria-label="Search"
+            className="w-full min-w-0 bg-transparent text-[13px] outline-none placeholder:text-[var(--color-ink-faint)]"
+          />
+        </form>
+
+        {focused && matches.length > 0 && (
+          <div className="absolute inset-x-0 top-full z-40 mt-1 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] shadow-lg">
+            {matches.map((s) => (
+              <Link
+                key={s.id}
+                to={`/product/${s.id}`}
+                onMouseDown={(e) => e.preventDefault()}
+                className="flex items-center gap-2 border-b border-[var(--color-line)] px-3 py-2 text-[12px] font-medium text-[var(--color-ink)] last:border-b-0 active:bg-[var(--color-surface-2)]"
+              >
+                <Search className="size-3 shrink-0 text-[var(--color-ink-faint)]" aria-hidden="true" />
+                <span className="truncate">{s.name}</span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+    </header>
+  );
+}

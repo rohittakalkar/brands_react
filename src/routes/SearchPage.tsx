@@ -1,0 +1,54 @@
+import { useSearchParams } from "react-router-dom";
+import { getProducts, getBrands, getContactPhoneByProductId } from "@/lib/data";
+import { useTitle } from "@/lib/useTitle";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import ProductCard from "@/components/ProductCard";
+import BrandTile from "@/components/BrandTile";
+
+export default function SearchPage() {
+  useTitle("Search — Brands");
+  const [searchParams] = useSearchParams();
+  const q = searchParams.get("q") ?? "";
+  const query = q.trim().toLowerCase();
+
+  const allBrands = getBrands();
+  const allProducts = getProducts();
+  const brandsById = new Map(allBrands.map((b) => [b.id, b]));
+  const contactPhoneByProductId = getContactPhoneByProductId(allProducts);
+
+  const matchedBrands = query ? allBrands.filter((b) => b.name.toLowerCase().includes(query)).slice(0, 6) : [];
+  const matchedProducts = query
+    ? allProducts.filter((p) => p.name.toLowerCase().includes(query) || p.brandName.toLowerCase().includes(query)).slice(0, 20)
+    : [];
+
+  return (
+    <div className="pb-6">
+      <Breadcrumbs items={[{ label: `"${q}"` || "Search" }]} />
+
+      {!query ? (
+        <p className="px-4 py-10 text-center text-sm text-[var(--color-ink-dim)]">Search for a brand, product, or model.</p>
+      ) : matchedBrands.length === 0 && matchedProducts.length === 0 ? (
+        <p className="px-4 py-10 text-center text-sm text-[var(--color-ink-dim)]">No matches for &ldquo;{q}&rdquo;.</p>
+      ) : (
+        <>
+          {matchedBrands.length > 0 && (
+            <section className="px-4 pt-2">
+              <h2 className="mb-2 text-[11px] font-black uppercase tracking-wide text-[var(--color-ink-dim)]">Brands</h2>
+              <div className="flex gap-3 overflow-x-auto scrollbar-none pb-1">
+                {matchedBrands.map((b) => <div key={b.id} className="w-[100px] shrink-0"><BrandTile brand={b} /></div>)}
+              </div>
+            </section>
+          )}
+          {matchedProducts.length > 0 && (
+            <section className="px-3 pt-4">
+              <h2 className="mb-2 px-1 text-[11px] font-black uppercase tracking-wide text-[var(--color-ink-dim)]">Products</h2>
+              <div className="flex flex-col gap-3">
+                {matchedProducts.map((p) => <ProductCard key={p.id} product={p} brand={brandsById.get(p.brandId)} contactPhone={contactPhoneByProductId[p.id]} />)}
+              </div>
+            </section>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
