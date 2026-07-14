@@ -1,0 +1,12 @@
+{
+  "buildCommand": "npm run build && mv dist/client/index.html dist/server/index.html",
+  "outputDirectory": "dist/client",
+  "functions": {
+    "api/ssr.js": {
+      "includeFiles": "dist/server/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/ssr" }
+  ]
+}
